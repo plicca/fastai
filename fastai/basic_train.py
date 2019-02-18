@@ -243,6 +243,14 @@ class Learner():
         if purge: self.purge(clear_opt=ifnone(with_opt, False))
         if device is None: device = self.data.device
         state = torch.load(self.path/self.model_dir/f'{name}.pth', map_location=device)
+
+        state2 = {}
+        for (key, value) in state.items():
+            if key.startswith("0"):
+                key = key[:1] + ".module" + key[1:]
+            state2[key] = value
+        state = state2
+
         if set(state.keys()) == {'model', 'opt'}:
             get_model(self.model).load_state_dict(state['model'], strict=strict)
             if ifnone(with_opt,True):
